@@ -30,10 +30,12 @@ pub fn init_ui<'a>(
         main_window.window.present();
         let rx = std::sync::Arc::clone(&rx);
 
+        // Listen for new devices incoming on a message channel.
+        // Polls every 3 secconds
         gtk4::glib::timeout_add_local(Duration::from_secs(3), move || match rx.try_recv() {
             Ok(device) => {
                 let dev_button = Button::builder()
-                    .label(device.name.unwrap_or("Unknown".to_string()))
+                    .label(device.clone().name.unwrap_or("Unknown".to_string()))
                     .width_request(290)
                     .height_request(50)
                     .build();
@@ -44,9 +46,17 @@ pub fn init_ui<'a>(
                     .width_request(290)
                     .build();
                 dev_box.append(&dev_button);
+
                 main_window.dev_list.append(&dev_box);
                 dev_button.connect_clicked(move |_| {
                     let dev_window = DevWindow::open();
+                    dev_window
+                        .label
+                        .set_text(device.name.clone().unwrap().as_str());
+                    dev_window
+                        .prop_box
+                        .buffer()
+                        .set_text(format!("{:#?}", device).as_str());
                     dev_window.window.present();
                 });
                 gtk4::glib::ControlFlow::Continue

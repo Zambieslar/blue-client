@@ -3,6 +3,7 @@ use std::sync::mpsc::SyncSender;
 use bluer::{Adapter, Address};
 use futures::{pin_mut, StreamExt};
 
+#[derive(Debug, Clone)]
 pub struct DeviceProperties {
     pub name: Option<String>,
     pub remote_address: Address,
